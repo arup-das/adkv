@@ -28,6 +28,13 @@ jobs:
       run: |
         sudo apt update
         sudo apt install libzstd-dev libglfw3-dev libfreetype6-dev libvulkan-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev wayland-protocols libwayland-dev libxkbcommon-dev
+    
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+
     - name: Ensure build.sh is executable
       run: chmod +x ./build.sh
     - name: Build
