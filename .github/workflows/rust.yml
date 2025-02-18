@@ -30,7 +30,7 @@ jobs:
         sudo apt install libzstd-dev libglfw3-dev libfreetype6-dev libvulkan-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev wayland-protocols libwayland-dev libxkbcommon-dev
 
     - name: Build
-      run: sudo ./${{github.workspace}}/apex_dma/build.sh
+      run: sudo .${{github.workspace}}/apex_dma/build.sh
     
     - name: Archive output artifacts
       uses: actions/upload-artifact@v4
