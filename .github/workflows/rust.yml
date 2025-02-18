@@ -1,22 +1,63 @@
-name: Rust
+
+name: CMake on a single platform
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 env:
-  CARGO_TERM_COLOR: always
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: apex_dma
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install libzstd-dev libglfw3-dev libfreetype6-dev libvulkan-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev wayland-protocols libwayland-dev libxkbcommon-dev
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
     - name: Build
-      run: build.sh
-    - name: Run tests
-      run: cargo test --verbose
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+    
+    - name: Archive output artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: output
+        path: |
+          build
+        retention-days: 2
+    
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: apex_dma_kvm_build
+        path: |
+          build/apex_dma
+        retention-days: 5
+
+    - name: Upload CMake build log as artifact
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-log
+        path: /home/runner/work/apex_dma_kvm_pub/apex_dma_kvm_pub/build/apexsky-prefix/src/apexsky-stamp/
+        retention-days: 1
